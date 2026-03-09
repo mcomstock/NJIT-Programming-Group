@@ -74,9 +74,9 @@
 ;; Exercise 1.5
 ;;
 
-;; Applicative
-;; (test 0 (p)) = (if (= 0 0) (0 (p))) = 0
 ;; Normal
+;; (test 0 (p)) = (if (= 0 0) (0 (p))) = 0
+;; Applicative
 ;; (test 0 (p)) = (test 0 (p)) after expanding (p), should infinite loop
 
 ;;
