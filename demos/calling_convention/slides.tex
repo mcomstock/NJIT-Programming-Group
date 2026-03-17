@@ -1,0 +1,464 @@
+\documentclass[aspectratio=169,hyperref={bookmarks=false,urlcolor=blue,colorlinks=true},10pt]{beamer}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{bm}
+\usepackage{xcolor}
+\usepackage[separate-uncertainty=true,multi-part-units=single,range-phrase=--,range-units=single]{siunitx}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{fnpct}
+\usepackage{xspace}
+\usepackage{listings}
+
+\lstset{basicstyle=\ttfamily,frame=single}
+
+\usecolortheme{default}
+
+\setbeamertemplate{blocks}[rounded]
+\setbeamertemplate{navigation symbols}{}
+
+\setbeamertemplate{footline}{
+  \hfill%
+  \usebeamercolor[fg]{page number in head/foot}%
+  \usebeamerfont{page number in head/foot}%
+  \setbeamertemplate{page number in head/foot}[framenumber]%
+  \usebeamertemplate*{page number in head/foot}\kern1em\vskip2pt%
+}
+
+\begin{document}
+
+\begin{frame}[fragile]
+  \frametitle{Add 1}
+
+  \begin{columns}[t]
+    \begin{column}{0.45\textwidth}
+      What is the output?
+
+      \begin{lstlisting}[language=Python]
+a = 0
+
+def add1(x):
+  x = x + 1
+
+add1(a)
+print(a)
+      \end{lstlisting}
+
+      \pause
+
+      Answer: \texttt{0}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      Why?
+
+      \pause
+
+      \begin{itemize}
+      \item The \texttt{add1} function gets its own copy of \texttt{a}, distinct from original
+        variable.
+      \item Not all languages behave this way.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Change first}
+
+  \begin{columns}[t]
+    \begin{column}{0.45\textwidth}
+      What is the output?
+
+      \begin{lstlisting}[language=Python]
+b = [0, 1, 2]
+
+def change_first(x):
+    x[0] = 3
+
+change_first(b)
+print(b)
+      \end{lstlisting}
+
+      \pause
+
+      Answer: \texttt{[3, 1, 2]}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      Why?
+
+      \pause
+
+      \begin{itemize}
+      \item Bigger data structures aren't copied
+        \begin{itemize}
+        \item Copying an entire list, dictionary, or more complex data structure would be slow
+        \end{itemize}
+      \item The data is shared with the function, rather than copied, so modifying the data in the
+        function will modify the original
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{New list}
+
+  \begin{columns}[t]
+    \begin{column}{0.45\textwidth}
+      What is the output?
+
+      \begin{lstlisting}[language=Python]
+c = [0, 1, 2]
+
+def new_list(x):
+    x = [3, 4]
+
+new_list(c)
+print(c)
+      \end{lstlisting}
+
+      \pause
+
+      Answer: \texttt{[0, 1, 2]}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      Why?
+
+      \pause
+
+      \begin{itemize}
+      \item The variable \texttt{x} in the function is still distinct from outside, even though the
+        data is the same
+      \item Reassigning the variable does not affect the data
+        \begin{itemize}
+        \item The original \texttt{c} array still exists unchanged, but \texttt{x} no longer refers
+          to it
+        \end{itemize}
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Add 1 to element}
+
+  \begin{columns}[t]
+    \begin{column}{0.45\textwidth}
+      What is the output?
+
+      \begin{lstlisting}[language=Python]
+# Same add1 as earlier
+def add1(x):
+    x = x + 1
+
+d = [0, 1, 2]
+
+add1(d[0])
+print(d)
+      \end{lstlisting}
+
+      \pause
+
+      Answer: \texttt{[0, 1, 2]}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      Why?
+
+      \pause
+
+      \begin{itemize}
+      \item Really the same as the other \texttt{add1} case
+      \item Treats \texttt{d[0]} as a single value, not part of a list
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Print e}
+
+  \begin{columns}[t]
+    \begin{column}{0.45\textwidth}
+      What is the output?
+
+      \begin{lstlisting}[language=Python]
+e = 0
+
+def print_e():
+    print(e)
+
+e = 1
+print_e()
+      \end{lstlisting}
+
+      \pause
+
+      Answer: \texttt{1}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      Why?
+
+      \pause
+
+      \begin{itemize}
+      \item The function uses the value of \texttt{e} when the function is called, not when it is
+        defined
+      \item Again, different languages will behave differently
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Print f}
+
+  \begin{columns}[t]
+    \begin{column}{0.45\textwidth}
+      What is the output?
+
+      \begin{lstlisting}[language=Python]
+def get_print_f():
+    f = 0
+
+    def print_f():
+        print(f)
+
+    return print_f
+
+my_print_f = get_print_f()
+my_print_f()
+      \end{lstlisting}
+
+      \pause
+
+      Answer: \texttt{0}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      Why?
+
+      \pause
+
+      \begin{itemize}
+      \item The context for \texttt{f} is saved
+      \item Allows functions to contain data
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Revenge of print f}
+
+  \begin{columns}[t]
+    \begin{column}{0.45\textwidth}
+      What is the output?
+
+      \begin{lstlisting}[language=Python]
+def get_print_f():
+    f = 0
+
+    def print_f():
+        print(f)
+
+    return print_f
+
+my_print_f = get_print_f()
+
+f = 1
+my_print_f()
+      \end{lstlisting}
+
+      \pause
+
+      Answer: \texttt{0}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      Why?
+
+      \pause
+
+      \begin{itemize}
+      \item The variable \texttt{f} inside the function is different from the variable \texttt{f}
+        outside the function
+      \item They just have the same name by coincidence
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Print g}
+
+  \begin{columns}[t]
+    \begin{column}{0.45\textwidth}
+      What is the output?
+
+      \begin{lstlisting}[language=Python]
+def get_print_g():
+    g = 0
+
+    def print_g():
+        print(g)
+
+    g = 1
+
+    return print_g
+
+my_print_g = get_print_g()
+my_print_g()
+      \end{lstlisting}
+
+      \pause
+
+      Answer: \texttt{1}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      Why?
+
+      \pause
+
+      \begin{itemize}
+      \item The same \texttt{g} variable referred to by \texttt{print\_g} was modified before the
+        function was called
+      \item As with the \texttt{print\_e} case, the function uses the value of the variable when it
+        is called, not when it is defined
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Print h}
+
+  \begin{columns}[t]
+    \begin{column}{0.50\textwidth}
+      What is the output?
+
+      \begin{lstlisting}[language=Python]
+def get_print_h(x):
+    h = x
+
+    def print_h():
+        print(h)
+
+    return print_h
+
+my_print_h_0 = get_print_h(0)
+my_print_h_1 = get_print_h(1)
+
+my_print_h_0()
+my_print_h_1()
+      \end{lstlisting}
+
+      \pause
+
+      Answer: \texttt{0}, then \texttt{1}
+    \end{column}
+    \begin{column}{0.40\textwidth}
+      Why?
+
+      \pause
+
+      \begin{itemize}
+      \item Each invocation of \texttt{get\_print\_h} creates a separate variable \texttt{h}
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Print i}
+
+  \begin{columns}[t]
+    \begin{column}{0.55\textwidth}
+      What is the output?
+
+      \begin{lstlisting}[language=Python]
+def get_print_i():
+    i = 0
+
+    def print_i():
+        print(i)
+
+    return print_i, i
+
+my_print_i, my_i = get_print_i()
+my_i = 1
+my_print_i()
+      \end{lstlisting}
+
+      \pause
+
+      Answer: \texttt{0}
+    \end{column}
+    \begin{column}{0.35\textwidth}
+      Why?
+
+      \pause
+
+      \begin{itemize}
+      \item Returned values also are copies of the original
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Print j}
+
+  \begin{columns}[t]
+    \begin{column}{0.55\textwidth}
+      What is the output?
+
+      \begin{lstlisting}[language=Python]
+def get_print_j():
+    j = [0, 1, 2]
+
+    def print_j():
+        print(j)
+
+    return print_j, j
+
+my_print_j, my_j = get_print_j()
+my_j[0] = 3
+my_print_j()
+      \end{lstlisting}
+
+      \pause
+
+      Answer: \texttt{[3, 1, 2]}
+    \end{column}
+    \begin{column}{0.35\textwidth}
+      Why?
+
+      \pause
+
+      \begin{itemize}
+      \item Data is also shared with returned values
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Relevance to Lisp/Scheme}
+
+  \begin{itemize}
+  \item The applicative-order model of evaluation implies that procedure arguments are not modified
+    \begin{itemize}
+    \item Variables are evaluated into values \emph{before} they are passed
+    \end{itemize}
+  \item In practice, maybe not so simple
+  \item Scheme programs generally return modified values rather than modifying state
+  \end{itemize}
+\end{frame}
+
+\end{document}
+
+% Local Variables:
+% compile-command: "pdflatex slides.tex && pdflatex slides.tex"
+% End:
