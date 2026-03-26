@@ -579,7 +579,9 @@
   (try-it (+ 1 (random (- n 1)))))
 
 (define (fast-prime-mr? n times)
-  (cond ((= times 0) #t)
+  (cond ((< n 0) (fast-prime-mr? (abs n) times))
+        ((< n 2) #f)
+        ((= times 0) #t)
         ((miller-rabin-test n) (fast-prime-mr? n (- times 1)))
         (else #f)))
 
