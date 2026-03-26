@@ -1,0 +1,303 @@
+\documentclass[aspectratio=169,hyperref={bookmarks=false,urlcolor=blue,colorlinks=true},10pt]{beamer}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{bm}
+\usepackage{xcolor}
+\usepackage[separate-uncertainty=true,multi-part-units=single,range-phrase=--,range-units=single]{siunitx}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{fnpct}
+\usepackage{xspace}
+\usepackage{listings}
+
+\lstset{basicstyle=\ttfamily,frame=single}
+
+\usecolortheme{default}
+
+\setbeamertemplate{blocks}[rounded]
+\setbeamertemplate{navigation symbols}{}
+
+\setbeamertemplate{footline}{
+  \hfill%
+  \usebeamercolor[fg]{page number in head/foot}%
+  \usebeamerfont{page number in head/foot}%
+  \setbeamertemplate{page number in head/foot}[framenumber]%
+  \usebeamertemplate*{page number in head/foot}\kern1em\vskip2pt%
+}
+
+\begin{document}
+
+\begin{frame}
+  \frametitle{Integers}
+
+  Representing integers on a computer is pretty easy:
+  \begin{itemize}
+  \item All information is stored in sequences of bits which can either represent 0 or 1
+  \item Write the integer in base 2
+  \item Base 2 digits with a 0 are represented by a 0 bit, digits with a 1 are represented by a 1
+    bit
+  \item Reserve one bit for indicating sign of the number
+    \begin{itemize}
+    \item Negative numbers are a little more complicated, but still not too bad
+    \end{itemize}
+  \item Range of values is $[-2^{b-1},2^{b-1}-1]$ where $b$ is the number of bits available
+  \end{itemize}
+
+  \begin{table}
+    \begin{tabular}{r|r}
+      Decimal & Binary\\
+      \hline
+      0 & 0\\
+      1 & 1\\
+      2 & 10\\
+      3 & 11\\
+      4 & 100\\
+      5 & 101
+    \end{tabular}
+  \end{table}
+\end{frame}
+
+\begin{frame}
+  \frametitle{What about real numbers?}
+
+  \begin{itemize}
+  \item Inherent limitation: any range contains infinite real numbers
+  \item Computers have a finite number of bits
+  \item Consequence: cannot represent almost all real numbers
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{One option: fixed point}
+
+  Basically just use an integer but scale it down:
+
+  \begin{table}
+    \begin{tabular}{r|r}
+      Value & Stored integer\\
+      \hline
+      0.00 & 0\\
+      1.50 & 150\\
+      -100.95 & -10095
+    \end{tabular}
+  \end{table}
+
+  \vspace{\baselineskip}
+
+  \begin{itemize}
+  \item Works well in some scenarios
+  \item Many problems for mathematical applications:
+    \begin{itemize}
+    \item Smaller numbers have lower precision
+    \item Lots of storage needed if both small and large numbers are required
+    \item Would like to be able to represent very small and very large numbers
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Floating point}
+
+  Idea: consistent precision by representing the number using scientific notation:
+  \begin{align*}
+    x = (-1)^s m \times 2^E,
+  \end{align*}
+  where
+  \begin{itemize}
+  \item $s$ is the \emph{sign}: $s=0$ if the number is positive, $s=1$ if the number is negative
+  \item $m$ is the \emph{significand}, \emph{mantissa}, or \emph{fraction}: $1\leq m < 2$
+  \item $E$ is the \emph{exponent} and is an integer
+  \end{itemize}
+
+  \vspace{\baselineskip}
+
+  Example:
+  \begin{align}
+    20 = 1.25 \times 16 = (-1)^0 1.25 \times 2^4,
+  \end{align}
+  so $s=0$, $m=1.25$, and $E=4$.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Floating point consequences}
+
+  \begin{itemize}
+  \item Precision is determined by $m$, the significand
+  \item Representable range is determined by $E$
+  \item Details of how $m$ and $E$ are represented using bits require some thought
+  \end{itemize}
+
+  \vspace{\baselineskip}
+
+  For an introduction to error analysis of computation with floating point numbers, see ``Numerical
+  Linear Algebra'' by Trefethen \& Bau, Section III.
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{$100+1$}
+
+  \begin{columns}[t]
+    \begin{column}{0.45\textwidth}
+      What is the output?
+
+      \begin{lstlisting}
+a = 100.0f0
+b = 0.0f0
+for i = 1:1000
+    a += 0.001f0
+    b += 0.001f0
+end
+println(a)
+println(100.0f0 + b)
+println(100.0f0 +
+        1000.0f0 * 0.001f0)
+      \end{lstlisting}
+
+      \pause
+
+      Answer: $a=100.99945$, $b=100.99999$, $c=101.0$
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      Why?
+
+      \pause
+
+      \begin{itemize}
+      \item Repeated additions accumulate error
+      \item Larger numbers have lower resolution, so they accumulate more error when adding small
+        numbers
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{$5/3$}
+
+  \begin{columns}[t]
+    \begin{column}{0.45\textwidth}
+      What is the output?
+
+      \begin{lstlisting}
+println((1.0f0/3.0f0)*5.0f0)
+println(5.0f0/3.0f0)
+      \end{lstlisting}
+
+      \pause
+
+      Answer: $a=1.6666667$, $b=1.6666666$
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      Why?
+
+      \pause
+
+      \begin{itemize}
+      \item Cannot represent $1/3$ exactly
+      \item Division by 3 and multiplication by $1/3$ are different
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{$a^8$}
+
+  \begin{columns}[t]
+    \begin{column}{0.45\textwidth}
+      What is the output?
+
+      \begin{lstlisting}
+a = 70.00007f0
+b = a*a
+b = b*b
+b = b*b
+println(a*a*a*a*a*a*a*a)
+println(b)
+println(a^8)
+      \end{lstlisting}
+
+      \pause
+
+      Answer:
+      \begin{align*}
+        a &= 5.764847e14\\
+        b &= 5.7648474e14\\
+        c &= 5.764846e14
+      \end{align*}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      Why?
+
+      \pause
+
+      \begin{itemize}
+      \item Floating point operations not associative in general
+      \item Power function is a single operation, probably most accurate
+      \item Sometimes must choose between efficiency and accuracy
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{$x^2-y^2$}
+
+  \begin{columns}[t]
+    \begin{column}{0.45\textwidth}
+      What is the output?
+
+      \begin{lstlisting}
+x = 100.0f0 + 0.001f0
+y = 100.0f0 - 0.001f0
+
+println(x*x - y*y)
+println((x+y) * (x-y))
+      \end{lstlisting}
+
+      \pause
+
+      Answer: $a=0.40039062$, $b=0.39978027$
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      Why?
+
+      \pause
+
+      \begin{itemize}
+      \item Small errors amplified by squaring
+      \item Loss of precision through cancelation error
+      \item The magnification of relative error through cancelation is due to the problem being
+        solved, not a property of floating point arithmetic
+      \item These errors can often be avoided by restating the problem in a mathematically
+        equivalent form
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Cancelation error}
+
+  Question: How much does an ant weigh?
+
+  \vspace{\baselineskip}
+
+  Experiment:
+  \begin{itemize}
+  \item Put the ant in my car
+  \item Weigh my car
+  \item Weigh the car without the ant
+  \item Take the difference
+  \end{itemize}
+\end{frame}
+
+\end{document}
+
+% Local Variables:
+% compile-command: "pdflatex slides.tex && pdflatex slides.tex"
+% End:
