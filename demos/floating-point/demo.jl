@@ -14,8 +14,8 @@ function main()
 
     println()
 
-    println((1.0f0 / 3.0f0) * 5.0f0)
-    println(5.0f0 / 3.0f0)
+    println(1.0f0 / 3.0f0 * 5.0f0)
+    println(5.0f0 * 1.0f0 / 3.0f0)
 
     println()
 
