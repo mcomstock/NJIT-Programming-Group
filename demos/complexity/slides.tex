@@ -1,0 +1,438 @@
+\documentclass[aspectratio=169,hyperref={bookmarks=false,urlcolor=blue,colorlinks=true},10pt]{beamer}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{bm}
+\usepackage{xcolor}
+\usepackage[separate-uncertainty=true,multi-part-units=single,range-phrase=--,range-units=single]{siunitx}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{fnpct}
+\usepackage{xspace}
+\usepackage{listings}
+\usepackage{algorithm2e}
+
+\lstset{basicstyle=\ttfamily,frame=single}
+
+\SetEndCharOfAlgoLine{}
+
+\usecolortheme{default}
+
+\setbeamertemplate{blocks}[rounded]
+\setbeamertemplate{navigation symbols}{}
+
+\setbeamertemplate{footline}{
+  \hfill%
+  \usebeamercolor[fg]{page number in head/foot}%
+  \usebeamerfont{page number in head/foot}%
+  \setbeamertemplate{page number in head/foot}[framenumber]%
+  \usebeamertemplate*{page number in head/foot}\kern1em\vskip2pt%
+}
+
+\begin{document}
+
+\begin{frame}
+  \frametitle{Asymptotic comptuational complexity}
+
+  \textbf{Computational complexity}: Measuring the resources required to solve a computational
+  problem
+
+  \vspace{\baselineskip}
+
+  \pause
+  \textbf{Aysmptotic}: Only care about long-term (large) behavior
+
+  \vspace{2\baselineskip}
+
+  \pause
+  Key question: \textit{\textbf{\large If we increase the input, how much harder is the problem?}}
+\end{frame}
+
+\begin{frame}
+  \frametitle{How to quantify complexity}
+
+  Relationship between \textbf{problem size} and \textbf{resource usage} for a computational
+  procedure
+
+  \vspace{\baselineskip}
+
+  \pause
+  Usually represented as a function $f(n)$, where problem size $n$ is the input
+
+  \vspace{\baselineskip}
+
+  \pause
+  Resources of interest are usually \textbf{time} or \textbf{space}
+  \begin{itemize}
+  \item Time: number of ``computation steps'' in the procedure
+  \item Space: amount of state required for the procedure
+  \end{itemize}
+
+  \vspace{\baselineskip}
+
+  \pause
+  What constitutes a single ``computation step'' is axiomatic (we must decide arbitrarily, but are
+  informed by reality)
+\end{frame}
+
+\begin{frame}
+  \frametitle{Constant-time operations}
+
+  \textbf{Constant-time operations}: building blocks assumed to take a single computation step
+
+  \vspace{\baselineskip}
+
+  \pause
+  Some common examples:
+  \begin{itemize}
+  \item Simple arithmetic
+  \item Data storage and retrieval (for fixed size)
+  \item Control-flow operations (such as if-statements)
+  \end{itemize}
+
+  \vspace{\baselineskip}
+
+  \pause
+  Choice of constant-time operations requires assumptions about the model of computation
+
+  \vspace{\baselineskip}
+
+  \pause
+  Fixed numbers of constant time operations are also constant time
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Big-$O$ notation: ignoring what we don't care about}
+
+  Function: $f(n) = 5n^2 + 1000n + 10^6$
+
+  \vspace{\baselineskip}
+
+  \pause
+  Only the \textbf{asyptotically largest} term matters
+  \begin{itemize}
+  \item If $n$ gets big enough, the others will be extremely small by comparison
+  \item This is asymptotic analysis!
+  \item $f(n) \approx 5n^2$ for very large $n$
+  \end{itemize}
+
+  \vspace{\baselineskip}
+
+  \pause
+  Ignore constant factors
+  \begin{itemize}
+  \item We care about the \textbf{qualitative description} of the behavior
+  \item Really difficult to do bookkeeping for constant factors anyway
+  \item $f(n) \approx n^2$
+  \end{itemize}
+
+  \vspace{\baselineskip}
+
+  \pause
+  Use big-$O$ notation: $f(n) = O(n^2)$
+\end{frame}
+
+\begin{frame}
+  \frametitle{Example: constant vs.\ non-constant}
+
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      Problem: add two numbers $a$ and $b$
+
+      \pause
+      \vspace{\baselineskip}
+
+      Algorithm 1:
+      \begin{algorithm}[H]
+        Return $a + b$
+      \end{algorithm}
+
+      \pause
+      \vspace{\baselineskip}
+
+      Algorithm 2:
+      \begin{algorithm}[H]
+        \For{$i$ in range(1,$b$)}{
+          $a = a+1$\;
+        }
+        Return $a$\;
+      \end{algorithm}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \pause
+      Complexity?
+
+      \pause
+      \vspace{\baselineskip}
+
+      Algorithm 1:
+      \begin{itemize}
+      \item Only one operation, regardless of the input
+      \item \textbf{Constant time}: $O(1)$
+      \end{itemize}
+
+      \pause
+      \vspace{\baselineskip}
+
+      Algorithm 2:
+      \begin{itemize}
+      \item Number of operations proportional to $b$
+      \item Therefore $b$ is the problem size
+      \item Time required: $O(b)$
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Distance between each element}
+
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      $n$ points, $x_1,x_2,\ldots,x_n$
+
+      find $d(x_i,x_j)$ for each pair
+
+      \pause
+      \vspace{\baselineskip}
+
+      \begin{algorithm}[H]
+        \For{$i$ in range(1,$n$)}{
+          \For{$j$ in range(1,$n$)}{
+            $d(x_i,x_j) = \|x_i - x_j\|$\;
+          }
+        }
+      \end{algorithm}
+
+      \vspace{\baselineskip}
+
+      Complexity?
+      \pause
+      $O(n^2)$
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \pause
+      Idea: don't recompute $d(x_j,x_i)$ after we know $d(x_i,x_j)$
+
+      \pause
+      \vspace{\baselineskip}
+
+      \begin{algorithm}[H]
+        \For{$i$ in range(1,$n$)}{
+          \For{$j$ in range($i$,$n$)}{
+            $d(x_i,x_j) = \|x_i - x_j\|$\;
+          }
+        }
+      \end{algorithm}
+
+      \vspace{\baselineskip}
+
+      Complexity?
+      \pause
+      $\frac{1}{2}O(n^2) = O(n^2)$
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Does $A$ contain $x$?}
+
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Sorted} array $A$ with $n$ elements. Does $A$ contain $x$?
+
+      \vspace{\baselineskip}
+
+      \pause
+      Algorithm 1:
+      \begin{itemize}
+      \item Check each element of $a$ in order
+      \item If we find it, yes
+      \item If $x>y$ for any comparison, no
+      \item If we don't find it, no
+      \end{itemize}
+
+      \vspace{\baselineskip}
+
+      \pause
+      Algorithm 2:
+      \begin{itemize}
+      \item Get $y$, middle element of $A$
+      \item If $x=y$, yes
+      \item If $A$ is empty, no
+      \item If $x<y$, check first half of $A$
+      \item If $x>y$, check second half of $A$
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \pause
+      Complexity (\textbf{Consider the worst case})
+
+      \vspace{\baselineskip}
+
+      \pause
+      Algorithm 1:
+      \begin{itemize}
+      \item Worst case: $x$ bigger than any element
+      \item Must check each element
+      \item $O(n)$
+      \end{itemize}
+
+      \vspace{\baselineskip}
+
+      \pause
+      Algorithm 2:
+      \begin{itemize}
+      \item Worst case: $x$ not in $A$
+      \item One check each iteration
+      \item How many iterations? Problem size becomes $n,\frac{n}{2},\frac{n}{4},\ldots,1$
+      \item $\log(n)$ steps
+      \item $O(\log(n))$
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Does $A$ contain $m$ elements?}
+
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \textbf{Unsorted} $A$, check $x_1,x_2,\ldots,x_m$
+
+      \pause
+      \vspace{\baselineskip}
+
+      Algorithm 3:
+      \begin{itemize}
+      \item For each $x_i$, use Algorithm 1
+      \end{itemize}
+
+      \pause
+      \vspace{\baselineskip}
+
+      Algorithm 4:
+      \begin{itemize}
+      \item Sort $A$
+      \item For each $x_i$, use Algorithm 2
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \pause
+      Complexity?
+
+      \vspace{\baselineskip}
+
+      \pause
+      Algorithm 3:
+      \begin{itemize}
+      \item Do Algorithm 1 $m$ times
+      \item $m O(n) = O(mn)$
+      \end{itemize}
+
+      \vspace{\baselineskip}
+
+      \pause
+      Algorithm 4:
+      \begin{itemize}
+      \item Sorting is generally $O(n\log(n))$
+      \item Do Algorithm 2 $m$ times
+      \item $m O(\log(n)) = O(m\log(n))$
+      \item Total: $O((m+n)\log(n))$
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Algorithm 3 vs.\ Algorithm 4}
+
+  \begin{columns}[t]
+    \begin{column}{0.5\textwidth}
+      Suppose $m > O(n)$
+
+      \vspace{\baselineskip}
+
+      Then $O((m+n)\log(n)) = O(m\log(n))$
+
+      \vspace{\baselineskip}
+
+      Algorithm 4 better if $O(m\log(n)) < O(mn)$
+
+      \vspace{\baselineskip}
+
+      Always true!
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \pause
+      What about $m < O(n)$?
+
+      \vspace{\baselineskip}
+
+      Algorithm 3 better if $O(mn) < O(n\log(n))$
+
+      \vspace{\baselineskip}
+
+      Algorithm 3 better if $m < O(\log(n))$
+    \end{column}
+  \end{columns}
+
+  \vspace{3\baselineskip}
+
+  \pause
+  \textbf{Conclusion:} Use Algorithm 3 only when $m < O(\log(n))$
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Why it matters}
+
+  \onslide<+->
+
+  Typical processor speed: \qty{5}{\giga\hertz}
+
+  \begin{table}
+    \begin{tabular}{|c|c|c|c|c|}
+      \hline
+      Complexity & Example & $n=10$ & $n=10^3$ & $n=10^6$\\
+      \hline
+      $O(1)$ & Add two numbers & \num{e-10} & \num{e-10} & \num{e-10}\\
+      \onslide<+->{
+        $O(\log(n))$ & Binary search & \num{e-10} & \num{e-9} & \num{e-9}
+      }\\
+      \onslide<+->{
+        $O(n)$ & Add $n$ numbers & \num{e-9} & \num{e-7} & \num{e-4}
+      }\\
+      \onslide<+->{
+        $O(n\log(n))$ & Sort $n$ numbers, FFT & \num{e-9} & \num{e-6} & \num{e-3}
+      }\\
+      \onslide<+->{
+        $O(n^2)$ & Pairwise distance & \num{e-8} & \num{e-4} & \num{e2}
+      }\\
+      \onslide<+->{
+        $O(n^3)$ & Matrix multiplication & \num{e-7} & \num{e-1} & \num{e8}
+      }\\
+      \onslide<+->{
+        $O(1.1^n)$ & ``Small'' exponential & \num{e-10} & \num{e31} & \num{e41382}
+      }\\
+      \onslide<+->{
+        $O(2^n)$ & Solve TSP & \num{e-7} & \num{e291} & \num{e301020}
+      }\\
+      \onslide<+->{
+        $O(n!)$ & Brute-force TSP & \num{e-4} & \num{e2557} & \num{e5565699}
+      }\\
+      \hline
+    \end{tabular}
+  \end{table}
+
+  \onslide<+->
+  Age of the universe: \num{4e17} seconds
+\end{frame}
+
+\end{document}
+
+% Local Variables:
+% compile-command: "pdflatex slides.tex && pdflatex slides.tex"
+% End:
