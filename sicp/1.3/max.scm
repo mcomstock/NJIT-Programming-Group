@@ -271,10 +271,217 @@
   (try first-guess))
 
 (fixed-point-print
- (lambda (x) (/ (log 1000) (log x))))
+ (lambda (x) (/ (log 1000) (log x)))
+ 2)
 (newline)
 (fixed-point-print
- (lambda (x) (/ (log 1000) (log x))))
+ (lambda (x) (/ (+ x (/ (log 1000) (log x)) ) 2))
+ 2)
+(newline)
 (newline)
 
-;; TODO finish and test the above (second one needs to use averaging)
+;; Takes about 35 steps without average damping and about 9 steps with average damping
+
+;;
+;; Exercise 1.37
+;;
+
+(define (cont-frac n d k)
+  (define (iter i res)
+    (if (= i 0) res
+        (iter (- i 1) (/ (n i) (+ (d i) res)))))
+  (iter k 0))
+
+(display (cont-frac (lambda (i) 1.0)
+                    (lambda (i) 1.0)
+                    12))
+(newline)
+
+(define (cont-frac-rec n d k)
+  (define (iter i)
+    (if (= i k) (/ (n i) (d i))
+        (/ (n i) (+ (d i) (iter (+ i 1))))))
+  (iter 1))
+
+(display (cont-frac-rec (lambda (i) 1.0)
+                        (lambda (i) 1.0)
+                        12))
+(newline)
+(newline)
+
+;; Seems that k=12 is enough to get 4 decimal places of accuracy
+
+;;
+;; Exercise 1.38
+;;
+
+(define (euler-d i)
+  (if (= (modulo i 3) 2) (* 2 (ceiling (/ i 3)))
+      1))
+
+(display (cont-frac (lambda (i) 1.0)
+                    euler-d
+                    100))
+(newline)
+(newline)
+
+;;
+;; Exercise 1.39
+;;
+
+(define (tan-cf x k)
+  (define (tn i)
+    (if (= i 1) x (- (* x x))))
+  (define (td i)
+    (- (* 2 i) 1))
+  (cont-frac tn td k))
+
+(display (tan-cf (atan 1.0) 100))
+(newline)
+(display (tan-cf (atan -.5) 100))
+(newline)
+(newline)
+
+;;
+;; Exercise 1.40
+;;
+
+(define dx 0.00001)
+(define (deriv g)
+  (lambda (x)
+    (/ (- (g (+ x dx)) (g x))
+       dx)))
+
+(define (newton-transform g)
+  (lambda (x)
+    (- x (/ (g x) ((deriv g) x)))))
+
+(define (newtons-method g guess)
+  (fixed-point (newton-transform g) guess))
+
+(define (cubic a b c)
+  (lambda (x) (+ (* x x x) (* a (* x x)) (* b x) c)))
+
+(display (newtons-method (cubic 1 1 1) 1))
+(newline)
+(newline)
+
+;;
+;; Exercise 1.41
+;;
+
+(define (double f)
+  (lambda (x) (f (f x))))
+(define (inc i) (+ 1 i))
+
+(display ((double inc) 1))
+(newline)
+(display (((double (double double)) inc) 5))
+(newline)
+(newline)
+
+;; (double double) -> double 2x -> 4x
+;; (double (double double)) -> double 4x -> 16x
+;; Adds 16 to 5 -> 21
+
+;;
+;; Exercise 1.42
+;;
+
+(define (square x) (* x x))
+
+(define (compose f g)
+  (lambda (x) (f (g x))))
+
+(display ((compose square inc) 6))
+(newline)
+(newline)
+
+;;
+;; Exercise 1.43
+;;
+
+(define (repeated f n)
+  (define (iter res i)
+    (if (= i 1) res
+        (iter (compose f res) (- i 1))))
+  (iter f n))
+
+(display ((repeated square 2) 5))
+(newline)
+(newline)
+
+;;
+;; Exercise 1.44
+;;
+
+(define sdx 0.1)
+(define (smooth f)
+  (lambda (x) (/ (+ (f x)
+                    (f (+ x sdx))
+                    (f (- x sdx)))
+                 3)))
+
+(display ((smooth square) 0))
+(newline)
+(display (((repeated smooth 5) square) 0))
+(newline)
+(newline)
+
+;;
+;; Exercise 1.45
+;;
+
+;; I looked it up. Average damp floor(log2(n)) times.
+
+(define (average x y) (/ (+ x y) 2))
+
+(define (average-damp f)
+  (lambda (x) (average x (f x))))
+
+(define (nth-root x n)
+  (fixed-point
+   ((repeated average-damp
+              (floor (/ (log n) (log 2))))
+    (lambda (y) (/ x (expt y (- n 1)))))
+   1.0))
+
+(display (nth-root 4 2))
+(newline)
+(display (nth-root 32 5))
+(newline)
+(display (nth-root 823543 7))
+(newline)
+(newline)
+
+;;
+;; Exercise 1.46
+;;
+
+(define (iterative-improve test improve)
+  (define (iter guess)
+    (if (test guess) guess
+        (iter (improve guess))))
+  iter)
+
+(define (sqrt-ii x)
+  ((iterative-improve
+    (lambda (a) (< (abs (- (square a) x)) tolerance))
+    (lambda (guess) (average guess (/ x guess))))
+   1.0))
+
+(define (fixed-point-ii f first-guess)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2)) tolerance))
+  ((iterative-improve
+    (lambda (a) (close-enough? (f a) a))
+    f)
+   first-guess))
+
+(define (sqrt-fii x)
+  (fixed-point-ii (average-damp (lambda (y) (/ x y))) 1.0))
+
+(display (sqrt-ii 25))
+(newline)
+(display (sqrt-fii 25))
+(newline)
